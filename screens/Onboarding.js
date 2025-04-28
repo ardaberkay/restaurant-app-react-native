@@ -6,11 +6,30 @@ import {
   Text,
   TextInput,
   Pressable,
+  Alert,
 } from "react-native";
 
-function Onboarding() {
+const Onboarding = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zAZ]{2,}$/;
+    return regex.test(email);
+  };
+
+  const handleNext = () => {
+    if (!name || !email) {
+      Alert.alert("Error", "Please fill in both fields.")
+    }
+    else if (!validateEmail(email)) {
+      Alert.alert("Error", "Please enter a valid mail")
+    }
+    else {
+      //Buton işlemleri burada yapılacak
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.navbar}>
@@ -35,9 +54,7 @@ function Onboarding() {
         />
       </View>
       <View style={styles.bottomBody}>
-        <Pressable style={styles.button} onPress={() => {
-
-        }}>
+        <Pressable style={styles.button} onPress={handleNext}>
           <Text style={styles.buttonText}>Next</Text>
         </Pressable>
       </View>

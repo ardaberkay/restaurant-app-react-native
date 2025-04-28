@@ -1,8 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native';
-import Onboarding from './screens/Onboarding';
+import { NavigationContainer } from "@react-navigation/native";
+import Navigator from "./navigation/Navigator";
 
 export default function App() {
   return (
-    <Onboarding/>
+    <NavigationContainer>
+      <Navigator/>
+    </NavigationContainer>
   );
-};
+}
