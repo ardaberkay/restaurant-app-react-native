@@ -40,7 +40,7 @@ const Navigator = () => {
 
   return (
     <Stack.Navigator
-      initialRouteName={state.isOnboardingCompleted ? "Home" : "Profile"}
+      initialRouteName={state.isOnboardingCompleted ? "Home" : "Onboarding"}
       screenOptions={{
         headerTitleAlign: "center",
         headerTitle: () => <Image style={styles.logo} source={require("../assets/Logo.png")} />,

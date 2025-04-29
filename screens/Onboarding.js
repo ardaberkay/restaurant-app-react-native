@@ -7,11 +7,14 @@ import {
   TextInput,
   Pressable,
   Alert,
+  ScrollView,
 } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 
 const Onboarding = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const navigation = useNavigation();
 
   const validateEmail = (email) => {
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zAZ]{2,}$/;
@@ -26,12 +29,12 @@ const Onboarding = () => {
       Alert.alert("Error", "Please enter a valid mail")
     }
     else {
-      //Buton işlemleri burada yapılacak
+      navigation.navigate('Profile', { name, email });
     }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.navbar}>
         <Image style={styles.logo} source={require("../assets/Logo.png")} />
       </View>
@@ -58,7 +61,7 @@ const Onboarding = () => {
           <Text style={styles.buttonText}>Next</Text>
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
