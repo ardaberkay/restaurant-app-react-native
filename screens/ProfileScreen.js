@@ -6,22 +6,103 @@ import {
   Image,
   TextInput,
   ScrollView,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Checkbox } from "react-native-paper";
+import { useUser } from "../contexts/UserContext";
+import { MaskedTextInput } from "react-native-mask-text";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
-const ProfileScreen = ({ route }) => {
-  const [image, setImage] = useState(null);
+const ProfileScreen = () => {
+  const { profileImage, setProfileImage, lastName, setLastName, name, email } =
+    useUser();
+
+  const [image, setImage] = useState(profileImage);
   const [isChecked, setChecked] = useState({
     option1: false,
     option2: false,
     option3: false,
     option4: false,
   });
-  const { name: initialName, email: initialEmail } = route.params;
-  const [name, setName] = useState(initialName);
-  const [email, setEmail] = useState(initialEmail);
+  const [localEmail, setLocalEmail] = useState(email);
+  const [localName, setLocalName] = useState(name);
+  const [number, setNumber] = useState(number);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const storedName = await AsyncStorage.getItem("name");
+        const storedEmail = await AsyncStorage.getItem("email");
+        const storedLastName = await AsyncStorage.getItem("lastName");
+        const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber");
+        const storedImage = await AsyncStorage.getItem("profileImage");
+  
+        if (storedName) {
+          setLocalName(storedName);
+        }
+  
+        if (storedEmail) {
+          setLocalEmail(storedEmail);
+        }
+  
+        if (storedLastName) {
+          setLastName(storedLastName);
+        }
+  
+        if (storedPhoneNumber) {
+          setNumber(storedPhoneNumber);
+        }
+  
+        if (storedImage) {
+          setImage(storedImage);
+          setProfileImage(storedImage);
+        }
+      } catch (error) {
+        console.error("Error loading profile data", error);
+      }
+    };
+  
+    loadUserData();
+  }, []);
+  
+
+  const handleSave = async () => {
+    try {
+      await AsyncStorage.setItem("name", localName);
+      await AsyncStorage.setItem("email", localEmail);
+      await AsyncStorage.setItem("lastName", lastName ?? "");
+      await AsyncStorage.setItem("phoneNumber", number ?? "");
+      await AsyncStorage.setItem("profileImage", image || "");
+      Alert.alert("Success", "Your profile has been updated!");
+    } catch (error) {
+      console.error("Error saving data to AsyncStorage", error);
+      Alert.alert("Error", "Failed to save profile info.");
+    }
+  };
+
+  const deleteSave = async () => {
+    try {
+      await AsyncStorage.clear();
+      setProfileImage(null);
+      setLastName("");
+      setLocalName("");
+      setLocalEmail("");
+      setNumber("");
+      Alert.alert("Success", "Your profile has been deleted!", [
+        {
+          text: "OK",
+          onPress: () => navigation.navigate("Onboarding"),
+        },
+      ]);
+    } catch (error) {
+      console.error("Error deleting data from AsyncStorage", error);
+      Alert.alert("Error", "Failed to delete profile info.");
+    }
+  };
 
   const changeImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -34,12 +115,15 @@ const ProfileScreen = ({ route }) => {
       quality: 1,
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      setImage(uri);
+      setProfileImage(uri);
     }
   };
 
   const removeImage = () => {
     setImage(null);
+    setProfileImage(null);
   };
 
   return (
@@ -48,9 +132,15 @@ const ProfileScreen = ({ route }) => {
         <Text style={style.headText}>Personal information</Text>
         <View style={style.photoRow}>
           {image ? (
-            <Image source={{ uri: image }} style={style.pp} /> // Görsel varsa göster
+            <Image source={{ uri: image }} style={style.pp} />
           ) : (
-            <Image source={require("../assets/Profile.png")} style={style.pp} /> // Varsayılan görsel
+            <View style={style.pp}>
+              <Text style={style.initialsText}>
+                {name
+                  ? (name[0] + (lastName ? lastName[0] : "")).toUpperCase()
+                  : "--"}
+              </Text>
+            </View>
           )}
           <Pressable style={style.buttonOne} onPress={changeImage}>
             <Text style={style.buttonTextOne}>Change</Text>
@@ -61,13 +151,34 @@ const ProfileScreen = ({ route }) => {
         </View>
         <View style={style.inputBody}>
           <Text style={style.labelText}>First Name</Text>
-          <TextInput style={style.inputBox} value={name} onChangeText={setName}></TextInput>
+          <TextInput
+            style={style.inputBox}
+            value={localName}
+            onChangeText={setLocalName}
+          ></TextInput>
           <Text style={style.labelText}>Last Name</Text>
-          <TextInput style={style.inputBox}></TextInput>
+          <TextInput
+            style={style.inputBox}
+            value={lastName}
+            onChangeText={setLastName}
+          ></TextInput>
           <Text style={style.labelText}>Email</Text>
-          <TextInput style={style.inputBox} value={email} onChangeText={setEmail}></TextInput>
+          <TextInput
+            style={style.inputBox}
+            value={localEmail}
+            onChangeText={setLocalEmail}
+            keyboardType="email-address"
+          ></TextInput>
           <Text style={style.labelText}>Phone Number</Text>
-          <TextInput style={style.inputBox}></TextInput>
+          <MaskedTextInput
+            mask="0 (999) 999 9999"
+            onChangeText={(text, rawText) => {
+              setNumber(rawText);
+            }}
+            value={number}
+            style={style.inputBox}
+            keyboardType="numeric"
+          />
         </View>
         <View style={style.notifications}>
           <Text style={style.headTextNot}>Email notification</Text>
@@ -116,7 +227,7 @@ const ProfileScreen = ({ route }) => {
             <Text style={style.checkBoxText}>Newsteller</Text>
           </View>
         </View>
-        <Pressable style={style.logoutButton} onPress={""}>
+        <Pressable style={style.logoutButton} onPress={deleteSave}>
           <Text style={style.logoutButtonText}>Log out</Text>
         </Pressable>
         <View style={style.changeButtonView}>
@@ -126,7 +237,7 @@ const ProfileScreen = ({ route }) => {
           <Pressable
             style={style.discardButton}
             backgroundColor={"#495E57"}
-            onPress={""}
+            onPress={handleSave}
           >
             <Text style={style.buttonTextOne}>Save changes</Text>
           </Pressable>
@@ -178,6 +289,9 @@ const style = StyleSheet.create({
     height: 100,
     resizeMode: "cover",
     borderRadius: 50,
+    backgroundColor: "#62D6C4",
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonTextOne: {
     padding: 7,
@@ -212,8 +326,8 @@ const style = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 15,
     padding: 10,
-    color: '#73737A',
-    fontWeight: 'bold'
+    color: "#73737A",
+    fontWeight: "bold",
   },
   headTextNot: {
     fontSize: 17,
@@ -257,6 +371,10 @@ const style = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     alignItems: "center",
+  },
+  initialsText: {
+    color: "white",
+    fontSize: 45,
   },
 });
 

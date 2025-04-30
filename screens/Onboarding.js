@@ -10,11 +10,13 @@ import {
   ScrollView,
 } from "react-native";
 import { useNavigation } from '@react-navigation/native';
+import { useUser } from "../contexts/UserContext";
 
 const Onboarding = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setLocalName] = useState("");
+  const [email, setLocalEmail] = useState("");
   const navigation = useNavigation();
+  const { setName, setEmail } = useUser();
 
   const validateEmail = (email) => {
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zAZ]{2,}$/;
@@ -29,7 +31,9 @@ const Onboarding = () => {
       Alert.alert("Error", "Please enter a valid mail")
     }
     else {
-      navigation.navigate('Profile', { name, email });
+      setName(name);
+      setEmail(email);
+      navigation.replace('Home');
     }
   };
 
@@ -44,14 +48,14 @@ const Onboarding = () => {
         <TextInput
           style={styles.input}
           value={name}
-          onChangeText={setName}
+          onChangeText={setLocalName}
           placeholder="Enter Name"
         />
         <Text style={styles.labelText}>Email</Text>
         <TextInput
           style={styles.input}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={setLocalEmail}
           placeholder="Enter Email"
           keyboardType="email-address"
         />
