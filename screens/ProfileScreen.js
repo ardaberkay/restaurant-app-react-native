@@ -7,6 +7,7 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  SafeAreaView
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
@@ -40,23 +41,23 @@ const ProfileScreen = () => {
         const storedLastName = await AsyncStorage.getItem("lastName");
         const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber");
         const storedImage = await AsyncStorage.getItem("profileImage");
-  
+
         if (storedName) {
           setLocalName(storedName);
         }
-  
+
         if (storedEmail) {
           setLocalEmail(storedEmail);
         }
-  
+
         if (storedLastName) {
           setLastName(storedLastName);
         }
-  
+
         if (storedPhoneNumber) {
           setNumber(storedPhoneNumber);
         }
-  
+
         if (storedImage) {
           setImage(storedImage);
           setProfileImage(storedImage);
@@ -65,10 +66,9 @@ const ProfileScreen = () => {
         console.error("Error loading profile data", error);
       }
     };
-  
+
     loadUserData();
   }, []);
-  
 
   const handleSave = async () => {
     try {
@@ -127,123 +127,125 @@ const ProfileScreen = () => {
   };
 
   return (
-    <ScrollView style={style.container} keyboardShouldPersistTaps="handled">
-      <View style={style.body}>
-        <Text style={style.headText}>Personal information</Text>
-        <View style={style.photoRow}>
-          {image ? (
-            <Image source={{ uri: image }} style={style.pp} />
-          ) : (
-            <View style={style.pp}>
-              <Text style={style.initialsText}>
-                {name
-                  ? (name[0] + (lastName ? lastName[0] : "")).toUpperCase()
-                  : "--"}
-              </Text>
+    <SafeAreaView style={style.container}>
+      <ScrollView style={style.container} keyboardShouldPersistTaps="handled">
+        <View style={style.body}>
+          <Text style={style.headText}>Personal information</Text>
+          <View style={style.photoRow}>
+            {image ? (
+              <Image source={{ uri: image }} style={style.pp} />
+            ) : (
+              <View style={style.pp}>
+                <Text style={style.initialsText}>
+                  {name
+                    ? (name[0] + (lastName ? lastName[0] : "")).toUpperCase()
+                    : "--"}
+                </Text>
+              </View>
+            )}
+            <Pressable style={style.buttonOne} onPress={changeImage}>
+              <Text style={style.buttonTextOne}>Change</Text>
+            </Pressable>
+            <Pressable style={style.buttonTwo} onPress={removeImage}>
+              <Text style={style.buttonTextTwo}>Remove</Text>
+            </Pressable>
+          </View>
+          <View style={style.inputBody}>
+            <Text style={style.labelText}>First Name</Text>
+            <TextInput
+              style={style.inputBox}
+              value={localName}
+              onChangeText={setLocalName}
+            ></TextInput>
+            <Text style={style.labelText}>Last Name</Text>
+            <TextInput
+              style={style.inputBox}
+              value={lastName}
+              onChangeText={setLastName}
+            ></TextInput>
+            <Text style={style.labelText}>Email</Text>
+            <TextInput
+              style={style.inputBox}
+              value={localEmail}
+              onChangeText={setLocalEmail}
+              keyboardType="email-address"
+            ></TextInput>
+            <Text style={style.labelText}>Phone Number</Text>
+            <MaskedTextInput
+              mask="0 (999) 999 9999"
+              onChangeText={(text, rawText) => {
+                setNumber(rawText);
+              }}
+              value={number}
+              style={style.inputBox}
+              keyboardType="numeric"
+            />
+          </View>
+          <View style={style.notifications}>
+            <Text style={style.headTextNot}>Email notification</Text>
+            <View style={style.checkContainer}>
+              <Checkbox.Android
+                label="sade"
+                status={isChecked.option1 ? "checked" : "unchecked"}
+                color="#495E57"
+                onPress={() => {
+                  setChecked((prev) => ({ ...prev, option1: !prev.option1 }));
+                }}
+              />
+              <Text style={style.checkBoxText}>Order statuses</Text>
             </View>
-          )}
-          <Pressable style={style.buttonOne} onPress={changeImage}>
-            <Text style={style.buttonTextOne}>Change</Text>
+            <View style={style.checkContainer}>
+              <Checkbox.Android
+                label="sade"
+                status={isChecked.option2 ? "checked" : "unchecked"}
+                color="#495E57"
+                onPress={() => {
+                  setChecked((prev) => ({ ...prev, option2: !prev.option2 }));
+                }}
+              />
+              <Text style={style.checkBoxText}>Password changes</Text>
+            </View>
+            <View style={style.checkContainer}>
+              <Checkbox.Android
+                label="sade"
+                status={isChecked.option3 ? "checked" : "unchecked"}
+                color="#495E57"
+                onPress={() => {
+                  setChecked((prev) => ({ ...prev, option3: !prev.option3 }));
+                }}
+              />
+              <Text style={style.checkBoxText}>Special Offers</Text>
+            </View>
+            <View style={style.checkContainer}>
+              <Checkbox.Android
+                label="sade"
+                status={isChecked.option4 ? "checked" : "unchecked"}
+                color="#495E57"
+                onPress={() => {
+                  setChecked((prev) => ({ ...prev, option4: !prev.option4 }));
+                }}
+              />
+              <Text style={style.checkBoxText}>Newsteller</Text>
+            </View>
+          </View>
+          <Pressable style={style.logoutButton} onPress={deleteSave}>
+            <Text style={style.logoutButtonText}>Log out</Text>
           </Pressable>
-          <Pressable style={style.buttonTwo} onPress={removeImage}>
-            <Text style={style.buttonTextTwo}>Remove</Text>
-          </Pressable>
-        </View>
-        <View style={style.inputBody}>
-          <Text style={style.labelText}>First Name</Text>
-          <TextInput
-            style={style.inputBox}
-            value={localName}
-            onChangeText={setLocalName}
-          ></TextInput>
-          <Text style={style.labelText}>Last Name</Text>
-          <TextInput
-            style={style.inputBox}
-            value={lastName}
-            onChangeText={setLastName}
-          ></TextInput>
-          <Text style={style.labelText}>Email</Text>
-          <TextInput
-            style={style.inputBox}
-            value={localEmail}
-            onChangeText={setLocalEmail}
-            keyboardType="email-address"
-          ></TextInput>
-          <Text style={style.labelText}>Phone Number</Text>
-          <MaskedTextInput
-            mask="0 (999) 999 9999"
-            onChangeText={(text, rawText) => {
-              setNumber(rawText);
-            }}
-            value={number}
-            style={style.inputBox}
-            keyboardType="numeric"
-          />
-        </View>
-        <View style={style.notifications}>
-          <Text style={style.headTextNot}>Email notification</Text>
-          <View style={style.checkContainer}>
-            <Checkbox.Android
-              label="sade"
-              status={isChecked.option1 ? "checked" : "unchecked"}
-              color="#495E57"
-              onPress={() => {
-                setChecked((prev) => ({ ...prev, option1: !prev.option1 }));
-              }}
-            />
-            <Text style={style.checkBoxText}>Order statuses</Text>
-          </View>
-          <View style={style.checkContainer}>
-            <Checkbox.Android
-              label="sade"
-              status={isChecked.option2 ? "checked" : "unchecked"}
-              color="#495E57"
-              onPress={() => {
-                setChecked((prev) => ({ ...prev, option2: !prev.option2 }));
-              }}
-            />
-            <Text style={style.checkBoxText}>Password changes</Text>
-          </View>
-          <View style={style.checkContainer}>
-            <Checkbox.Android
-              label="sade"
-              status={isChecked.option3 ? "checked" : "unchecked"}
-              color="#495E57"
-              onPress={() => {
-                setChecked((prev) => ({ ...prev, option3: !prev.option3 }));
-              }}
-            />
-            <Text style={style.checkBoxText}>Special Offers</Text>
-          </View>
-          <View style={style.checkContainer}>
-            <Checkbox.Android
-              label="sade"
-              status={isChecked.option4 ? "checked" : "unchecked"}
-              color="#495E57"
-              onPress={() => {
-                setChecked((prev) => ({ ...prev, option4: !prev.option4 }));
-              }}
-            />
-            <Text style={style.checkBoxText}>Newsteller</Text>
+          <View style={style.changeButtonView}>
+            <Pressable style={style.discardButton} onPress={""}>
+              <Text style={style.buttonTextTwo}>Discard changes</Text>
+            </Pressable>
+            <Pressable
+              style={style.discardButton}
+              backgroundColor={"#495E57"}
+              onPress={handleSave}
+            >
+              <Text style={style.buttonTextOne}>Save changes</Text>
+            </Pressable>
           </View>
         </View>
-        <Pressable style={style.logoutButton} onPress={deleteSave}>
-          <Text style={style.logoutButtonText}>Log out</Text>
-        </Pressable>
-        <View style={style.changeButtonView}>
-          <Pressable style={style.discardButton} onPress={""}>
-            <Text style={style.buttonTextTwo}>Discard changes</Text>
-          </Pressable>
-          <Pressable
-            style={style.discardButton}
-            backgroundColor={"#495E57"}
-            onPress={handleSave}
-          >
-            <Text style={style.buttonTextOne}>Save changes</Text>
-          </Pressable>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

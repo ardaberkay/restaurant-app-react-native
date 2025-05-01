@@ -48,13 +48,39 @@ const Navigator = () => {
   }
 
   const renderHeaderRight = () => {
-    const initials = name
-      ? (name[0] + (lastName ? lastName[0] : "")).toUpperCase()
-      : "--";
+    const [avatarUri, setAvatarUri] = useState(null);
+    const [initials, setInitials] = useState("--");
+  
+    const navigation = useNavigation();
+  
+    useEffect(() => {
+      const loadUserData = async () => {
+        try {
+          const storedName = await AsyncStorage.getItem("name");
+          const storedLastName = await AsyncStorage.getItem("lastName");
+          const storedProfileImage = await AsyncStorage.getItem("profileImage");
+  
+          const initials =
+            storedName && storedLastName
+              ? (storedName[0] + storedLastName[0]).toUpperCase()
+              : storedName
+              ? storedName[0].toUpperCase()
+              : "--";
+  
+          setInitials(initials);
+          setAvatarUri(storedProfileImage);
+        } catch (err) {
+          console.log("Failed to load user data for header:", err);
+        }
+      };
+  
+      loadUserData();
+    }, []);
+  
     return (
       <Pressable onPress={() => navigation.navigate("Profile")}>
-        {profileImage ? (
-          <Image source={{ uri: profileImage }} style={styles.avatar} />
+        {avatarUri ? (
+          <Image source={{ uri: avatarUri }} style={styles.avatar} />
         ) : (
           <View style={[styles.avatar, styles.defaultAvatar]}>
             <Text style={styles.avatarText}>{initials}</Text>
@@ -63,6 +89,7 @@ const Navigator = () => {
       </Pressable>
     );
   };
+  
 
   return (
     <Stack.Navigator
@@ -111,5 +138,26 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+const HeaderAvatar = () => {
+  const { profileImage, name, lastName } = useUser();
+  const navigation = useNavigation();
+
+  const initials = name
+    ? (name[0] + (lastName ? lastName[0] : "")).toUpperCase()
+    : "--";
+
+  return (
+    <Pressable onPress={() => navigation.navigate("Profile")}>
+      {profileImage ? (
+        <Image source={{ uri: profileImage }} style={styles.avatar} />
+      ) : (
+        <View style={[styles.avatar, styles.defaultAvatar]}>
+          <Text style={styles.avatarText}>{initials}</Text>
+        </View>
+      )}
+    </Pressable>
+  );
+};
 
 export default Navigator;

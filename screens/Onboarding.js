@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from "../contexts/UserContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setOnboardingStatus } from "../services/AsyncStorageService";
 
 const Onboarding = () => {
   const [name, setLocalName] = useState("");
@@ -23,7 +25,7 @@ const Onboarding = () => {
     return regex.test(email);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!name || !email) {
       Alert.alert("Error", "Please fill in both fields.")
     }
@@ -31,6 +33,9 @@ const Onboarding = () => {
       Alert.alert("Error", "Please enter a valid mail")
     }
     else {
+      await AsyncStorage.setItem("name", name);
+      await AsyncStorage.setItem("email", email);
+      await setOnboardingStatus();
       setName(name);
       setEmail(email);
       navigation.replace('Home');
