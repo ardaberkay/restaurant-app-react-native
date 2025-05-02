@@ -20,13 +20,16 @@ A React Native mobile application that allows users to interact with a restauran
    ```bash
    git clone https://github.com/ardaberkay/restaurant-app-react-native.git
    cd restaurant-app-react-native
+   ```
 
 2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
 3. Run the app:
-```bash
-npx expo start
+   ```bash
+   npx expo start
+   ```
