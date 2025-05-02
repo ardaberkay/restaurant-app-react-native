@@ -7,7 +7,7 @@ import {
   TextInput,
   ScrollView,
   Alert,
-  SafeAreaView
+  SafeAreaView,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
@@ -69,6 +69,39 @@ const ProfileScreen = () => {
 
     loadUserData();
   }, []);
+
+  const discardChanges = async () => {
+    try {
+      const storedName = await AsyncStorage.getItem("name");
+      const storedEmail = await AsyncStorage.getItem("email");
+      const storedLastName = await AsyncStorage.getItem("lastName");
+      const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber");
+      const storedImage = await AsyncStorage.getItem("profileImage");
+
+      if (storedName) {
+        setLocalName(storedName);
+      }
+
+      if (storedEmail) {
+        setLocalEmail(storedEmail);
+      }
+
+      if (storedLastName) {
+        setLastName(storedLastName);
+      }
+
+      if (storedPhoneNumber) {
+        setNumber(storedPhoneNumber);
+      }
+
+      if (storedImage) {
+        setImage(storedImage);
+        setProfileImage(storedImage);
+      }
+    } catch (error) {
+      console.error("Error loading profile data", error);
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -232,7 +265,7 @@ const ProfileScreen = () => {
             <Text style={style.logoutButtonText}>Log out</Text>
           </Pressable>
           <View style={style.changeButtonView}>
-            <Pressable style={style.discardButton} onPress={""}>
+            <Pressable style={style.discardButton} onPress={discardChanges}>
               <Text style={style.buttonTextTwo}>Discard changes</Text>
             </Pressable>
             <Pressable
